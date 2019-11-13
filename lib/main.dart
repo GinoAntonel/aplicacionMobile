@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 void main() => runApp(MyApp());
 
+
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,22 +20,34 @@ class MyApp extends StatelessWidget {
                 icon: Icon(Icons.add_alert),
                 tooltip: 'Show ',
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TabbedAppBarSample()),
-                  );
                 }),
             IconButton(
               icon: Icon(Icons.android),
               color: Colors.white,
               onPressed: () {},
             ),
+            RaisedButton(
+                child: Text('Create Record'),
+                onPressed: () {
+                  createRecord();
+                },
+            ),
           ],
         ),
         body: MyCustomForm(),
       ),
     );
+  }
+
+  final databaseReference = FirebaseDatabase.instance.reference();
+  
+  void createRecord(){
+    databaseReference.child("1").set({
+      'apellido': 'Mastering EJB',
+      'nombre': 'Programming Guide for J2EE',
+      'paquetesPD': 1.0,
+      'precioPP': 1.0
+    });
   }
 }
 
@@ -45,14 +58,7 @@ class MyCustomForm extends StatefulWidget {
   }
 }
 
-// Define a corresponding State class.
-// This class holds data related to the form.
 class MyCustomFormState extends State<MyCustomForm> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a `GlobalKey<FormState>`,
-  // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -60,11 +66,11 @@ class MyCustomFormState extends State<MyCustomForm> {
     // Build a Form widget using the _formKey created above.
     return Form(
       key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -79,7 +85,8 @@ class MyCustomFormState extends State<MyCustomForm> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -89,12 +96,13 @@ class MyCustomFormState extends State<MyCustomForm> {
                 if (value.isEmpty) {
                   return 'Este campo no puede estar vacio';
                 }
-                return null;
+                return null;  
               },
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
@@ -106,7 +114,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                 }else{
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => TabbedAppBarSample()),
+                    MaterialPageRoute(builder: (context) => MyWidget()),
                   );
                 }
                 return null;
@@ -125,7 +133,7 @@ class MyCustomFormState extends State<MyCustomForm> {
                       .showSnackBar(SnackBar(content: Text('Processing Data')));
                 }
               },
-              child: Text('Submit'),
+              child: Text('Empezar'),
             ),
           ),
         ],
@@ -134,87 +142,26 @@ class MyCustomFormState extends State<MyCustomForm> {
   }
 }
 
-class TabbedAppBarSample extends StatelessWidget {
+class MyWidget extends StatefulWidget {
+  MyWidget({Key key}) : super(key: key);
+
   @override
+  _MyWidget createState() => _MyWidget();
+}
+
+class _MyWidget extends State<MyWidget> {
+  int _count = 0;
+
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DefaultTabController(
-        length: choices.length,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Tabbed AppBar'),
-            actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.arrow_left),
-              color: Colors.white,
-              onPressed: (
-              ) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MyApp()),
-                );
-              },
-            ),
-            ],
-            bottom: TabBar(
-              isScrollable: true,
-              tabs: choices.map((Choice choice) {
-                return Tab(
-                  text: choice.title,
-                  icon: Icon(choice.icon),
-                );
-              }).toList(),
-            ),
-          ),
-          body: TabBarView(
-            children: choices.map((Choice choice) {
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ChoiceCard(choice: choice),
-              );
-            }).toList(),
-          ),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sample Code'),
       ),
-    );
-  }
-}
-
-class Choice {
-  const Choice({this.title, this.icon});
-
-  final String title;
-  final IconData icon;
-}
-
-const List<Choice> choices = const <Choice>[
-  const Choice(title: 'CAR', icon: Icons.directions_car),
-  const Choice(title: 'BICYCLE', icon: Icons.directions_bike),
-  const Choice(title: 'BOAT', icon: Icons.directions_boat),
-  const Choice(title: 'BUS', icon: Icons.directions_bus),
-  const Choice(title: 'TRAIN', icon: Icons.directions_railway),
-  const Choice(title: 'WALK', icon: Icons.directions_walk),
-];
-
-class ChoiceCard extends StatelessWidget {
-  const ChoiceCard({Key key, this.choice}) : super(key: key);
-
-  final Choice choice;
-
-  @override
-  Widget build(BuildContext context) {
-    final TextStyle textStyle = Theme.of(context).textTheme.display1;
-    return Card(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Icon(choice.icon, size: 128.0, color: textStyle.color),
-            Text(choice.title, style: textStyle),
-          ],
-        ),
+      body: Center(child: Text('You have pressed the button $_count times.')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() => _count++),
+        tooltip: 'Increment Counter',
+        child: const Icon(Icons.add),
       ),
     );
   }

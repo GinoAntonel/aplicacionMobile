@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "960920105031",
+    "firebase_url": "https://quitsmoking-8a93d.firebaseio.com",
+    "project_id": "quitsmoking-8a93d",
+    "storage_bucket": "quitsmoking-8a93d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960920105031:android:7729a8b18800cc54c9c162",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960920105031-rqkaj8l90s3lav9gq9an7ti3qgdcmipq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5ZGtvQ2zf5l_IepD313Mlqz92NZ4tiJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960920105031-rqkaj8l90s3lav9gq9an7ti3qgdcmipq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
