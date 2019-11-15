@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'dart:async';
+import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,28 +28,11 @@ class MyApp extends StatelessWidget {
               color: Colors.white,
               onPressed: () {},
             ),
-            RaisedButton(
-                child: Text('Create Record'),
-                onPressed: () {
-                  createRecord();
-                },
-            ),
           ],
         ),
         body: MyCustomForm(),
       ),
     );
-  }
-
-  final databaseReference = FirebaseDatabase.instance.reference();
-  
-  void createRecord(){
-    databaseReference.child("1").set({
-      'apellido': 'Mastering EJB',
-      'nombre': 'Programming Guide for J2EE',
-      'paquetesPD': 1.0,
-      'precioPP': 1.0
-    });
   }
 }
 
@@ -61,6 +46,40 @@ class MyCustomForm extends StatefulWidget {
 class MyCustomFormState extends State<MyCustomForm> {
   final _formKey = GlobalKey<FormState>();
 
+  final database = FirebaseDatabase.instance.reference();
+  TextEditingController _nombre = new TextEditingController();
+  TextEditingController _apellido = new TextEditingController();
+  TextEditingController _cantidad = new TextEditingController();
+  TextEditingController _precio = new TextEditingController();
+  TextEditingController _fecha = new TextEditingController();
+
+  var fecha = new DateTime.now();
+  var dateFormat = DateFormat("yMd");
+
+
+
+  StreamSubscription _subscription;
+
+  void initState() {
+    super.initState();
+    _subscription = database.onValue.listen((data) {
+      String valueName = data.snapshot.value as String ?? "";
+      String valueA = data.snapshot.value as String ?? "";
+      double valueC = data.snapshot.value as double;
+      double valueP = data.snapshot.value as double;
+      String strDate = dateFormat.format(fecha).toString();
+    });
+  }
+
+  saveOnChanged(String valueName, String valueA, double valueC, double valueP, String strDate) async {
+    await database.set({
+      'nombre': valueName,
+      'apellido': valueA,
+      'cantidad': valueC,
+      'precio': valueP,
+      'fecha': strDate,
+    });  
+  }
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
@@ -72,6 +91,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding:
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
+              controller: _nombre,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Nombre',
@@ -88,6 +108,24 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding:
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
+              controller: _apellido,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Apellido',
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Este campo no puede estar vacio';
+                }
+                return null;
+              },
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+            child: TextFormField(
+              controller: _cantidad,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Cantidad de paquetes por dia',
@@ -104,6 +142,7 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding:
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
             child: TextFormField(
+              controller: _precio,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Precio por paquete',
@@ -125,12 +164,13 @@ class MyCustomFormState extends State<MyCustomForm> {
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: RaisedButton(
               onPressed: () {
-                // Validate returns true if the form is valid, or false
-                // otherwise.
                 if (_formKey.currentState.validate()) {
-                  // If the form is valid, display a Snackbar.
-                  Scaffold.of(context)
-                      .showSnackBar(SnackBar(content: Text('Processing Data')));
+                  var nombre = _nombre.text;
+                  var apellido = _apellido.text;
+                  double cantidad = double.parse(_cantidad.value.text);
+                  double precio = double.parse(_precio.value.text);
+                  DateTime fechaF = new DateTime.now();
+                  saveOnChanged(nombre, apellido, cantidad, precio, fechaF.toString());
                 }
               },
               child: Text('Empezar'),
@@ -150,18 +190,44 @@ class MyWidget extends StatefulWidget {
 }
 
 class _MyWidget extends State<MyWidget> {
-  int _count = 0;
-
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sample Code'),
-      ),
-      body: Center(child: Text('You have pressed the button $_count times.')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() => _count++),
-        tooltip: 'Increment Counter',
-        child: const Icon(Icons.add),
+    return MaterialApp(
+      home: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.directions_car)),
+                Tab(icon: Icon(Icons.directions_transit)),
+                Tab(icon: Icon(Icons.directions_bike)),
+              ],
+            ),
+            title: Text('Tabs Demo'),
+          ),
+          body: TabBarView(
+            children: [
+              Container(
+                child: (
+                Row(
+                  children: <Widget>[
+                    Text(
+                    'Hello, d How are you?',
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )
+                )
+              ),
+
+              Icon(Icons.directions_transit),
+              Icon(Icons.directions_bike),
+            ],
+          ),
+        ),
       ),
     );
   }
