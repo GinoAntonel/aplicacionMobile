@@ -40,9 +40,7 @@ class MyCustomFormState extends State<MyCustomForm> {
   TextEditingController _precio = new TextEditingController();
   TextEditingController _fecha = new TextEditingController();
 
-  var fecha = new DateTime.now();
-  var dateFormat = DateFormat("Hms");
-
+  
   StreamSubscription _subscription;
 
   void initState() {
@@ -52,19 +50,17 @@ class MyCustomFormState extends State<MyCustomForm> {
       String valueA = data.snapshot.value as String ?? "";
       double valueC = data.snapshot.value as double;
       double valueP = data.snapshot.value as double;
-      String strDate = dateFormat.format(fecha).toString();
       double valuePq = data.snapshot.value as double;
     });
   }
 
-  saveOnChanged(String valueName, String valueA, double valueC, double valueP,
-      String strDate, valuePq) async {
+  saveOnChanged(String valueName, String valueA, double valueC, double valueP, valuePq) async {
     await database.set({
       'nombre': valueName,
       'apellido': valueA,
       'cantidad': valueC,
       'precio': valueP,
-      'fecha': strDate,
+      'fecha': DateTime.now().toString(),
       'paquete': valuePq,
     });
   }
@@ -206,10 +202,8 @@ class MyCustomFormState extends State<MyCustomForm> {
                   var apellido = _apellido.text;
                   double cantidad = double.parse(_cantidad.value.text);
                   double precio = double.parse(_precio.value.text);
-                  DateTime fechaF = new DateTime.now();
                   var valuePq = tenSelected ? 10 : 20;
-                  saveOnChanged(nombre, apellido, cantidad, precio,
-                      fechaF.toString(), valuePq);
+                  saveOnChanged(nombre, apellido, cantidad, precio, valuePq);
                 }
               },
               child: Text('Empezar'),
@@ -664,25 +658,24 @@ class _MyCard extends State<MyCard> {
   var nombre;
   var fecha;
   var diferencia;
-
   var tiempo;
   Timer timer;
-  var dateFormat = DateFormat("Hms");
 
   void calculateDiference() {
     database.once().then((DataSnapshot snapshot) {
       setState(() {
         nombre = snapshot.value['nombre'];
         fecha = DateTime.parse(snapshot.value['fecha']);
-        diferencia = new DateTime.now().difference(fecha);
-      
+        tiempo = DateTime.now();
+        diferencia = tiempo.difference(fecha);
       });
     });
   }
 
   void initState() {
-    timer =
-        Timer.periodic(Duration(seconds: 1), (Timer t) => calculateDiference());
+    timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+    calculateDiference();
+  });
     super.initState();
   }
 
